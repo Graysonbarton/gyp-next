@@ -788,7 +788,7 @@ class MakefileWriter:
         self.suffix_rules_objdir2 = {}
 
         # Generate suffix rules for all compilable extensions.
-        for ext in COMPILABLE_EXTENSIONS:
+        for ext, value in COMPILABLE_EXTENSIONS.items():
             # Suffix rules for source folder.
             self.suffix_rules_srcdir.update(
                 {
@@ -797,7 +797,7 @@ class MakefileWriter:
 $(obj).$(TOOLSET)/$(TARGET)/%%.o: $(srcdir)/%%%s FORCE_DO_CMD
 \t@$(call do_cmd,%s,1)
 """
-                        % (ext, COMPILABLE_EXTENSIONS[ext])
+                        % (ext, value)
                     )
                 }
             )
@@ -810,7 +810,7 @@ $(obj).$(TOOLSET)/$(TARGET)/%%.o: $(srcdir)/%%%s FORCE_DO_CMD
 $(obj).$(TOOLSET)/$(TARGET)/%%.o: $(obj).$(TOOLSET)/%%%s FORCE_DO_CMD
 \t@$(call do_cmd,%s,1)
 """
-                        % (ext, COMPILABLE_EXTENSIONS[ext])
+                        % (ext, value)
                     )
                 }
             )
@@ -821,7 +821,7 @@ $(obj).$(TOOLSET)/$(TARGET)/%%.o: $(obj).$(TOOLSET)/%%%s FORCE_DO_CMD
 $(obj).$(TOOLSET)/$(TARGET)/%%.o: $(obj)/%%%s FORCE_DO_CMD
 \t@$(call do_cmd,%s,1)
 """
-                        % (ext, COMPILABLE_EXTENSIONS[ext])
+                        % (ext, value)
                     )
                 }
             )
@@ -1779,13 +1779,13 @@ $(obj).$(TOOLSET)/$(TARGET)/%%.o: $(obj)/%%%s FORCE_DO_CMD
             # using ":=".
             self.WriteSortedXcodeEnv(self.output, self.GetSortedXcodePostbuildEnv())
 
-            for configname in target_postbuilds:
+            for configname, value in target_postbuilds.items():
                 self.WriteLn(
                     "%s: TARGET_POSTBUILDS_%s := %s"
                     % (
                         QuoteSpaces(self.output),
                         configname,
-                        gyp.common.EncodePOSIXShellList(target_postbuilds[configname]),
+                        gyp.common.EncodePOSIXShellList(value),
                     )
                 )
 
@@ -1834,7 +1834,7 @@ $(obj).$(TOOLSET)/$(TARGET)/%%.o: $(obj)/%%%s FORCE_DO_CMD
             # Since this target depends on binary and resources which are in
             # nested subfolders, the framework directory will be older than
             # its dependencies usually. To prevent this rule from executing
-            # on every build (expensive, especially with postbuilds), expliclity
+            # on every build (expensive, especially with postbuilds), explicitly
             # update the time on the framework directory.
             self.WriteLn("\t@touch -c %s" % QuoteSpaces(self.output))
 

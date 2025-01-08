@@ -3275,7 +3275,7 @@ def _GetMSBuildPropertyGroup(spec, label, properties):
     num_configurations = len(spec["configurations"])
 
     def GetEdges(node):
-        # Use a definition of edges such that user_of_variable -> used_varible.
+        # Use a definition of edges such that user_of_variable -> used_variable.
         # This happens to be easier in this case, since a variable's
         # definition contains all variables it references in a single string.
         edges = set()
@@ -3412,7 +3412,11 @@ def _FinalizeMSBuildSettings(spec, configuration):
     )
     # Turn on precompiled headers if appropriate.
     if precompiled_header:
-        precompiled_header = os.path.split(precompiled_header)[1]
+        # While MSVC works with just file name eg. "v8_pch.h", ClangCL requires
+        # the full path eg. "tools/msvs/pch/v8_pch.h" to find the file.
+        # P.S. Only ClangCL defines msbuild_toolset, for MSVC it is None.
+        if configuration.get("msbuild_toolset") != 'ClangCL':
+            precompiled_header = os.path.split(precompiled_header)[1]
         _ToolAppend(msbuild_settings, "ClCompile", "PrecompiledHeader", "Use")
         _ToolAppend(
             msbuild_settings, "ClCompile", "PrecompiledHeaderFile", precompiled_header
